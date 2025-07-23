@@ -1,29 +1,46 @@
-import Client, { OAuth } from "./client.js";
-import middleware from "./middleware.js";
-import validateSignature from "./validate-signature.js";
+const line = require('@line/bot-sdk');
 
-export { Client, middleware, validateSignature, OAuth };
+// Quick Reply 回應訊息
+const quickReplyMessage = {
+  type: 'text',
+  text: '👋 歡迎！請選擇您要執行的操作：',
+  quickReply: {
+    items: [
+      {
+        type: 'action',
+        action: {
+          type: 'message',
+          label: '小明',
+          text: '小明'
+        }
+      },
+      {
+        type: 'action',
+        action: {
+          type: 'message',
+          label: '姐',
+          text: '姐'
+        }
+      },
+      {
+        type: 'action',
+        action: {
+          type: 'message',
+          label: '爸爸',
+          text: '爸爸'
+        }
+      }
+    ]
+  }
+};
 
-// re-export exceptions and types
-export * from "./exceptions.js";
-export * from "./types.js";
-
-import * as channelAccessToken from "./channel-access-token/api.js";
-export { channelAccessToken };
-import * as insight from "./insight/api.js";
-export { insight };
-import * as liff from "./liff/api.js";
-export { liff };
-import * as manageAudience from "./manage-audience/api.js";
-export { manageAudience };
-import * as messagingApi from "./messaging-api/api.js";
-export { messagingApi };
-// Note: `module` is reserved word in Javascript.
-import * as moduleOperation from "./module/api.js";
-export { moduleOperation };
-import * as moduleAttach from "./module-attach/api.js";
-export { moduleAttach };
-import * as shop from "./shop/api.js";
-export { shop };
-import * as webhook from "./webhook/api.js";
-export { webhook };
+// 在 webhook 事件中回覆 quick reply
+app.post('/webhook', line.middleware(config), (req, res) => {
+  Promise.all(req.body.events.map(async (event) => {
+    if (event.type === 'message' && event.message.type === 'text') {
+      return client.replyMessage(event.replyToken, quickReplyMessage);
+    }
+  }))
+  .then(() => res.status(200).end())
+  .catch((err) => console.error(err));
+});
